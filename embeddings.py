@@ -47,7 +47,8 @@ def embedding_lookup(sentence: str, emb_matrix: np.ndarray, vocab: dict) -> np.n
     for idx in indexes:
         embeddings.append(emb_matrix[idx])
 
-    embeddings = np.array(embeddings, dtype=np.float32).reshape(-1, emb_matrix.shape[1])
+    # shape: [d, n] (embedding dim, number of words)
+    embeddings = np.array(embeddings, dtype=np.float32).T
 
     return embeddings
 
@@ -61,6 +62,7 @@ if __name__ == '__main__':
     print(e.shape)
 
     embedded_sentence = embedding_lookup(TEST_SENT, e, v)
+    assert embedded_sentence.shape == (e.shape[1], len(TEST_SENT.split()))
 
     print(embedded_sentence)
     print(embedded_sentence.shape)
