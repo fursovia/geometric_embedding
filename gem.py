@@ -2,8 +2,10 @@
 GEM algorithm
 """
 
-import numpy as np
 from typing import List
+
+import numpy as np
+
 from embeddings import get_embedding_matrix, embedding_lookup
 
 
@@ -15,49 +17,42 @@ class GEM:
         self.vocabulary = v
         self.sentences = sentences
 
-    def significance(self, m: int):
+    def get_sentence_embeddings(self, m: int, k: int, h: int):
+        X = np.zeros((self.embedding_matrix.shape[1], len(self.sentences)))
 
         for i, sent in enumerate(self.sentences):
             embedded_sent = embedding_lookup(sent, self.embedding_matrix, self.vocabulary)
-            for j in range(embedded_sent.shape[1]):
+            U, s, Vh = np.linalg.svd(embedded_sent, full_matrices=False)
+            X[:, i] = U.dot(s ** 3)
+
+        U, s, Vh = np.linalg.svd(X, full_matrices=False)
+        D = U[:, :k].dot(np.diag(s[:k]))
+
+        C = np.zeros((self.embedding_matrix.shape[1], len(self.sentences)))
+        for j, sent in enumerate(self.sentences):
+            embedded_sent = embedding_lookup(sent, self.embedding_matrix, self.vocabulary)
+            order = s * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
+            toph = order.argsort()[::-1][:h]
+            alpha = np.zeros(embedded_sent.shape[1])
+            for i in range(embedded_sent.shape[1]):
                 window_matrix = self._context_window(i, m, embedded_sent)
-                U, S, V = np.linalg.svd(window_matrix)
-
-                sing_value = S[j, j]
-
-                # need to get q = Q[:, -1] here
-                q = None
-
-                alpha_s = np.linalg.norm(sing_value * q) / (2 * m + 1)
-
-
-    def novelty(self, embeddings: np.ndarray, m: int):
-
-        novelty = []
-
-        for i in range(embeddings.shape[1]):
-            window_matrix = self._context_window(i, m, embeddings)
-            Q, R = np.linalg.qr(window_matrix)
-
-            # new orthogonal basis vector to this contextual window matrix
-            # represents the novel semantic meaning brought by word w_i
-            # q = Q[:, -1]
-            r = R[:, -1]
-            r_last = r[-1]
-
-            alpha_n = np.exp(r_last / np.linalg.norm(r))
-
-            novelty.append(alpha_n)
-
-        return novelty
+                Q, R = np.linalg.qr(window_matrix)
+                q = Q[:, -1]
+                r = R[:, -1]
+                alpha_n = np.exp(r[-1] / np.linalg.norm(r))
+                alpha_s = r[-1] / (2 * m + 1)
+                alpha_u = np.exp(-np.linalg.norm(s[toph] * (q.T.dot(D[:, toph]))) / h)
+                alpha[i] = alpha_n + alpha_s + alpha_u
+            C[:, j] = embedded_sent.dot(alpha)
+            C[:, j] = C[:, j] - D.dot(D.T.dot(C[:, j]))
+        return C
 
     def _context_window(self, i: int, m: int, embeddings: np.ndarray) -> np.ndarray:
         """
         Given embedded sentence returns  the contextual window matrix of word w_i
         """
-        left_window = embeddings[:, i-m:i]
-        right_window = embeddings[:, i+1:i+m+1]
-        word_embedding = embeddings[:, i]
-
-        window_matrix = np.stack([left_window, right_window, word_embedding], axis=1)
+        left_window = embeddings[:, i - m:i]
+        right_window = embeddings[:, i + 1:i + m + 1]
+        word_embedding = embeddings[:, i][:, None]
+        window_matrix = np.hstack([left_window, right_window, word_embedding])
         return window_matrix

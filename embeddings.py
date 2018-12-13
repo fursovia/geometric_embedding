@@ -2,8 +2,9 @@
 Things that help to work with embeddings
 """
 
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 
 
 def get_embedding_matrix(path_to_glove: str) -> Tuple[np.ndarray, dict]:
@@ -37,33 +38,8 @@ def embedding_lookup(sentence: str, emb_matrix: np.ndarray, vocab: dict) -> np.n
     words = sentence.strip().lower().split()
     indexes = []
     for word in words:
-        try:
+        if word in vocab:
             indexes.append(vocab[word])
-        except KeyError:
-            pass
-
-    embeddings = []
-
-    for idx in indexes:
-        embeddings.append(emb_matrix[idx])
 
     # shape: [d, n] (embedding dim, number of words)
-    embeddings = np.array(embeddings, dtype=np.float32).T
-
-    return embeddings
-
-
-if __name__ == '__main__':
-    EMB_PATH = 'data/glove.6B.50d.txt'
-    TEST_SENT = 'hello i love having a good time'
-
-    e, v = get_embedding_matrix(EMB_PATH)
-    print(len(v))
-    print(e.shape)
-
-    embedded_sentence = embedding_lookup(TEST_SENT, e, v)
-    assert embedded_sentence.shape == (e.shape[1], len(TEST_SENT.split()))
-
-    print(embedded_sentence)
-    print(embedded_sentence.shape)
-
+    return emb_matrix[indexes].T
