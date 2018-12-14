@@ -2,12 +2,12 @@
 Things that help to work with embeddings
 """
 
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 
 
-def get_embedding_matrix(path_to_glove: str) -> Tuple[np.ndarray, dict]:
+def get_glove_embedding_matrix(path_to_glove: str) -> Tuple[np.ndarray, dict]:
     """
     Function returns:
     1) Embedding matrix
@@ -31,15 +31,22 @@ def get_embedding_matrix(path_to_glove: str) -> Tuple[np.ndarray, dict]:
     return embedding_matrix, vocabulary
 
 
-def embedding_lookup(sentence: str, emb_matrix: np.ndarray, vocab: dict) -> np.ndarray:
+def preprocess_sentence(sentence: str):
     """
-    Embeds the sentence
+    :return: list of words
     """
-    words = sentence.strip().lower().split()
+    return sentence.strip().lower().split()
+
+
+def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
+    words = preprocess_sentence(sentence)
     indexes = []
     for word in words:
         if word in vocab:
             indexes.append(vocab[word])
+    return indexes
 
+
+def inds_to_embedding(indexes: List[int], emb_matrix: np.ndarray) -> np.ndarray:
     # shape: [d, n] (embedding dim, number of words)
     return emb_matrix[indexes].T

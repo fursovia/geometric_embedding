@@ -6,22 +6,21 @@ from typing import List
 
 import numpy as np
 
-from embeddings import get_embedding_matrix, embedding_lookup
+from embeddings import inds_to_embedding
 
 
 class GEM:
 
-    def __init__(self, embedding_path: str, sentences: List[str]) -> None:
-        e, v = get_embedding_matrix(embedding_path)
-        self.embedding_matrix = e
-        self.vocabulary = v
-        self.sentences = sentences
+    def __init__(self, sentences: List[List[int]], embedding_matrix: np.ndarray) -> None:
+        self.sentences = sentences  # List of idx representations of sentences
+        self.embedding_matrix = embedding_matrix
+        self.dim = self.embedding_matrix.shape[1]
 
     def get_sentence_embeddings(self, m: int, k: int, h: int):
-        X = np.zeros((self.embedding_matrix.shape[1], len(self.sentences)))
+        X = np.zeros((self.dim, len(self.sentences)))
 
         for i, sent in enumerate(self.sentences):
-            embedded_sent = embedding_lookup(sent, self.embedding_matrix, self.vocabulary)
+            embedded_sent = inds_to_embedding(sent, self.embedding_matrix)
             U, s, Vh = np.linalg.svd(embedded_sent, full_matrices=False)
             X[:, i] = U.dot(s ** 3)
 
@@ -30,7 +29,7 @@ class GEM:
 
         C = np.zeros((self.embedding_matrix.shape[1], len(self.sentences)))
         for j, sent in enumerate(self.sentences):
-            embedded_sent = embedding_lookup(sent, self.embedding_matrix, self.vocabulary)
+            embedded_sent = inds_to_embedding(sent, self.embedding_matrix)
             order = s * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
             toph = order.argsort()[::-1][:h]
             alpha = np.zeros(embedded_sent.shape[1])
