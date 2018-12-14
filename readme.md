@@ -1,8 +1,8 @@
 [Zero-training Sentence Embedding via Orthogonal Basis](https://arxiv.org/abs/1810.00438) paper implementation
 
-[Project proposal](https://docs.google.com/document/d/1aok_e_UXDNRH9HvOZ6grawrZI4OjVrHfEJFuca_t4ng/edit?usp=sharing)
-[Presentation](https://docs.google.com/presentation/d/1EEmoU7C_RjBmJJD3YF3RLm2AsxTZKvtVHYFWGsX3vjo/edit?usp=sharing)
-[Report](https://docs.google.com/document/d/1XsH6srwFwoKXkvMspJmy-bHMXq-fuqNrnXJcEv2fFqQ/edit?usp=sharing)
+* [Project proposal](https://docs.google.com/document/d/1aok_e_UXDNRH9HvOZ6grawrZI4OjVrHfEJFuca_t4ng/edit?usp=sharing)
+* [Presentation](https://docs.google.com/presentation/d/1EEmoU7C_RjBmJJD3YF3RLm2AsxTZKvtVHYFWGsX3vjo/edit?usp=sharing)
+* [Report](https://docs.google.com/document/d/1XsH6srwFwoKXkvMspJmy-bHMXq-fuqNrnXJcEv2fFqQ/edit?usp=sharing)
 
 
 Data used:
@@ -11,6 +11,11 @@ Data used:
 * [STS data](http://ixa2.si.ehu.es/stswiki/index.php/STSbenchmark)
 * [IMDB/Reuters](https://keras.io/datasets/)
 
+| Model                      | Train | Dev | Test |
+|----------------------------|-------|-----|------|
+| Universal Sentence Encoder | 0.697 | ?   | ?    |
+| GEM                        | ?     | ?   | ?    |
+| ELMO                       | ?     | ?   | ?    |
 
 ## Глобальные задачи
 
