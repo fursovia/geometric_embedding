@@ -3,7 +3,7 @@ Things that help to work with embeddings
 """
 
 from typing import List, Tuple
-
+from nltk import wordpunct_tokenize
 import numpy as np
 
 
@@ -35,8 +35,7 @@ def preprocess_sentence(sentence: str):
     """
     :return: list of words
     """
-    return sentence.strip().lower().split()
-
+    return list(filter(str.isalpha, wordpunct_tokenize(sentence.lower())))
 
 def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
     words = preprocess_sentence(sentence)
