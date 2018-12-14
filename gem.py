@@ -16,7 +16,7 @@ class GEM:
         self.embedding_matrix = embedding_matrix
         self.emb_dim = self.embedding_matrix.shape[1]
 
-    def get_sentence_embeddings(self, window_size: int, K: int, h: int, sigma_power: int = 3):
+    def get_sentence_embeddings(self, window_size: int = 7, k: int = 45, h: int = 17, sigma_power: int = 3):
         X = np.zeros((self.emb_dim, len(self.sentences)))
 
         for i, sent in enumerate(self.sentences):
@@ -25,12 +25,12 @@ class GEM:
             X[:, i] = U.dot(s ** sigma_power)
 
         U, s, Vh = np.linalg.svd(X, full_matrices=False)
-        D = U[:, :K].dot(np.diag(s[:K]))
+        D = U[:, :k].dot(np.diag(s[:k]))
 
         C = np.zeros((self.emb_dim, len(self.sentences)))
         for j, sent in enumerate(self.sentences):
             embedded_sent = inds_to_embeddings(sent, self.embedding_matrix)
-            order = s[:K] * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
+            order = s[:k] * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
             toph = order.argsort()[::-1][:h]
             alpha = np.zeros(embedded_sent.shape[1])
             for i in range(embedded_sent.shape[1]):
