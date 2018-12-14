@@ -47,6 +47,6 @@ def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
     return indexes
 
 
-def inds_to_embedding(indexes: List[int], emb_matrix: np.ndarray) -> np.ndarray:
+def inds_to_embeddings(indexes: List[int], emb_matrix: np.ndarray) -> np.ndarray:
     # shape: [d, n] (embedding dim, number of words)
     return emb_matrix[indexes].T
