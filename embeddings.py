@@ -6,6 +6,21 @@ from typing import List, Tuple
 from nltk import wordpunct_tokenize
 import numpy as np
 
+class GloveEmbedder:
+    def __init__(self, path_to_glove: str):
+        self.matrix, self.vocab = get_glove_embedding_matrix(path_to_glove)
+
+    def get_vecs(self, tokens: List[str]) -> np.array:
+        indices = tokens_to_indexes(tokens, self.vocab)
+        vecs = np.array(inds_to_embeddings(indices, self.matrix))
+        return vecs
+
+    def get_vecs_average(self, tokens: List[str]) -> np.array:
+        return np.mean(self.get_vecs(tokens), axis=1)
+
+    def __call__(self, tokens):
+        return self.get_vecs_average(tokens)
+
 
 def get_glove_embedding_matrix(path_to_glove: str) -> Tuple[np.ndarray, dict]:
     """
@@ -36,6 +51,15 @@ def preprocess_sentence(sentence: str):
     :return: list of words
     """
     return list(filter(str.isalpha, wordpunct_tokenize(sentence.lower())))
+
+
+def tokens_to_indexes(words: List[str], vocab: dict) -> List[int]:
+    indexes = []
+    for word in words:
+        if word in vocab:
+            indexes.append(vocab[word])
+    return indexes
+
 
 def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
     words = preprocess_sentence(sentence)
