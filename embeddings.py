@@ -4,6 +4,7 @@ Things that help to work with embeddings
 
 from typing import List, Tuple
 
+import nltk
 import numpy as np
 
 
@@ -35,7 +36,7 @@ def preprocess_sentence(sentence: str):
     """
     :return: list of words
     """
-    return sentence.strip().lower().split()
+    return nltk.word_tokenize(sentence.strip().lower())
 
 
 def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
