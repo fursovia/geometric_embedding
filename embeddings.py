@@ -14,14 +14,29 @@ class GloveEmbedder:
 
     def get_vecs(self, tokens: List[str]) -> np.array:
         indices = tokens_to_indexes(tokens, self.vocab)
-        vecs = np.array(inds_to_embeddings(indices, self.matrix))
-        return vecs
+        return inds_to_embeddings(indices, self.matrix)
 
     def get_vecs_average(self, tokens: List[str]) -> np.array:
         return np.mean(self.get_vecs(tokens), axis=1)
 
     def __call__(self, tokens):
         return self.get_vecs_average(tokens)
+
+
+class MeanEmbedder:
+
+    def __init__(self, sentences: List[List[int]], embedding_matrix: np.ndarray) -> None:
+        self.sentences = sentences  # List of idx representations of sentences
+        self.embedding_matrix = embedding_matrix
+        self.emb_dim = self.embedding_matrix.shape[1]
+
+    def get_sentence_embeddings(self):
+        C = np.zeros((self.emb_dim, len(self.sentences)))
+
+        for i, sent in enumerate(self.sentences):
+            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix)
+            C[:, i] = np.mean(embedded_sent, axis=1)
+        return C, None
 
 
 def get_embedding_matrix(path: str, islexvec: bool = False) -> Tuple[np.ndarray, dict]:

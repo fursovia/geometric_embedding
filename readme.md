@@ -8,14 +8,18 @@
 Data used:
 
 * [GloVe embeddings](https://nlp.stanford.edu/projects/glove/)
+* [LexVec embeddings](https://github.com/alexandres/lexvec)
 * [STS data](http://ixa2.si.ehu.es/stswiki/index.php/STSbenchmark)
 * [IMDB/Reuters](https://keras.io/datasets/)
 
-| Model                      | Train | Dev | Test |
-|----------------------------|-------|-----|------|
-| Universal Sentence Encoder | 0.697 | ?   | ?    |
-| GEM                        | ?     | ?   | ?    |
-| ELMO                       | ?     | ?   | ?    |
+| Model                      | Train |  Dev  | Test |
+|----------------------------|-------|-------|------|
+| Universal Sentence Encoder | 69.7  | ?     | ?    |
+| GEM+Glove                  | ?     | 79.9  | 64.9 |
+| GEM+LexVec                 | ?     | 76.9  | 63.3 |
+| Lexvec                     | ?     | 66.6  | 38.8 |
+| Glove                      | ?     | 51.8  | 27.4 |
+| ELMO                       | ?     | ?     | ?    |
 
 ## Глобальные задачи
 
