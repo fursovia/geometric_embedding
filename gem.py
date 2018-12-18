@@ -9,6 +9,22 @@ import numpy as np
 from embeddings import inds_to_embeddings
 
 
+def gram_schmidt_qr(A):
+    nrows, ncols = A.shape
+    Q = np.zeros((nrows, ncols))
+    R = np.zeros((ncols, ncols))
+    for j in range(ncols):
+        u = np.copy(A[:, j])
+        for i in range(j):
+            proj = np.dot(A[:, j], Q[:, i]) * Q[:, i]
+            u -= proj
+        Q[:, j] = u / np.linalg.norm(u)
+    for j in range(ncols):
+        for i in range(j + 1):
+            R[i, j] = A[:, j].dot(Q[:, i])
+    #     R = Q.T.dot(A)
+    return Q, R
+
 class GEM:
 
     def __init__(self, sentences: List[List[int]], embedding_matrix: np.ndarray) -> None:
@@ -25,6 +41,7 @@ class GEM:
             X[:, i] = U.dot(s ** sigma_power)
 
         D, s, _ = np.linalg.svd(X, full_matrices=False)
+        s_old = s.copy()
         D = D[:, :k]
         s = s[:k]
 
@@ -36,7 +53,7 @@ class GEM:
             alpha = np.zeros(embedded_sent.shape[1])
             for i in range(embedded_sent.shape[1]):
                 window_matrix = self._context_window(i, window_size, embedded_sent)
-                Q, R = np.linalg.qr(window_matrix)
+                Q, R = gram_schmidt_qr(window_matrix)
                 q = Q[:, -1]
                 r = R[:, -1]
                 alpha_n = np.exp(r[-1] / np.linalg.norm(r))
@@ -45,7 +62,7 @@ class GEM:
                 alpha[i] = alpha_n + alpha_s + alpha_u
             C[:, j] = embedded_sent.dot(alpha)
             C[:, j] = C[:, j] - D.dot(D.T.dot(C[:, j]))
-        return C
+        return C, s_old
 
     def _context_window(self, i: int, m: int, embeddings: np.ndarray) -> np.ndarray:
         """
