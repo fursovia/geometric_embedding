@@ -34,7 +34,7 @@ class SentenceEmbedder:
         self.bigrams = bigrams
 
         for sent in self.sentences_raw:
-            self.sentences.append(sentence_to_indexes(sent, self.vocab, self.bigrams))
+            self.sentences.append(sentence_to_indexes(sent, self.vocab))
 
         self.embedding_matrix = embedding_matrix
         self.emb_dim = self.embedding_matrix.shape[1]

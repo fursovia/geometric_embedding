@@ -64,26 +64,15 @@ def tokens_to_indexes(words: List[str], vocab: dict) -> List[int]:
     return indexes
 
 
-def sentence_to_indexes(sentence: str, vocab: dict, bigrams: bool = False) -> List[int]:
-    tokens = preprocess_sentence(sentence, bigrams)
+def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
+    tokens = preprocess_sentence(sentence)
     indexes = []
     for token in tokens:
-        if bigrams:
-            word1 = token[0]
-            word2 = token[1]
-        else:
-            word1 = token
 
-        if word1 in vocab:
-            indexes.append(vocab[word1])
+        if token in vocab:
+            indexes.append(vocab[token])
         else:
             indexes.append(vocab['UNKNOWN_TOKEN'])
-
-        if bigrams:
-            if word2 in vocab:
-                indexes.append(vocab[word2])
-            else:
-                indexes.append(vocab['UNKNOWN_TOKEN'])
 
     return indexes
 
@@ -91,7 +80,15 @@ def sentence_to_indexes(sentence: str, vocab: dict, bigrams: bool = False) -> Li
 def inds_to_embeddings(indexes: List[int], emb_matrix: np.ndarray, bigrams: bool = False) -> np.ndarray:
     if bigrams:
         embedded_sent = emb_matrix[indexes]
-        embedded_sent = (embedded_sent[::2] + embedded_sent[1::2]) / 2
+        if len(indexes) % 2 == 0:
+            embedded_sent = (embedded_sent[::2] + embedded_sent[1::2]) / 2
+        else:
+            first = embedded_sent[::2]
+            second = embedded_sent[1::2]
+            padded = np.zeros(first.shape)
+            padded[:-1] = second
+
+            embedded_sent = (first + padded) / 2
         return embedded_sent.T
     # shape: [d, n] (embedding dim, number of words)
     return emb_matrix[indexes].T
