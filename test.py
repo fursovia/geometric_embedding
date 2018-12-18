@@ -1,8 +1,6 @@
 from emb_path import glove_6B_50d_path
-from embeddings import get_glove_embedding_matrix, sentence_to_indexes, inds_to_embeddings, GloveEmbedder
-from gem import GEM
-import timeit
-from evaluate import STSDataset, evaluate
+from embeddings import GloveEmbedder
+from evaluate import evaluate
 
 if __name__ == '__main__':
     # TEST_SENT1 = 'i believe i can fly'
@@ -11,7 +9,7 @@ if __name__ == '__main__':
     # TEST_SENT4 = 'spread my wings and fly away'
     # start = timeit.default_timer()
     #
-    # e, v = get_glove_embedding_matrix(glove_6B_50d_path)
+    # e, v = get_embedding_matrix(glove_6B_50d_path)
     # embedded_sentence = inds_to_embeddings(sentence_to_indexes(TEST_SENT1, v), e)
     # assert embedded_sentence.shape == (e.shape[1], len(TEST_SENT1.split()))
     #

@@ -3,12 +3,14 @@ Things that help to work with embeddings
 """
 
 from typing import List, Tuple
-from nltk import wordpunct_tokenize
+
 import numpy as np
+from nltk import wordpunct_tokenize
+
 
 class GloveEmbedder:
     def __init__(self, path_to_glove: str):
-        self.matrix, self.vocab = get_glove_embedding_matrix(path_to_glove)
+        self.matrix, self.vocab = get_embedding_matrix(path_to_glove)
 
     def get_vecs(self, tokens: List[str]) -> np.array:
         indices = tokens_to_indexes(tokens, self.vocab)
@@ -22,7 +24,7 @@ class GloveEmbedder:
         return self.get_vecs_average(tokens)
 
 
-def get_glove_embedding_matrix(path_to_glove: str) -> Tuple[np.ndarray, dict]:
+def get_embedding_matrix(path: str, islexvec: bool = False) -> Tuple[np.ndarray, dict]:
     """
     Function returns:
     1) Embedding matrix
@@ -32,7 +34,9 @@ def get_glove_embedding_matrix(path_to_glove: str) -> Tuple[np.ndarray, dict]:
     embeddings = dict()
     vocabulary = []
 
-    with open(path_to_glove, 'r') as file:
+    with open(path, 'r') as file:
+        if islexvec:
+            file.readline()
         for line in file:
             values = line.split()
             word = values[0]
