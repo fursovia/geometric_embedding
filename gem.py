@@ -24,13 +24,14 @@ class GEM:
             U, s, Vh = np.linalg.svd(embedded_sent, full_matrices=False)
             X[:, i] = U.dot(s ** sigma_power)
 
-        U, s, Vh = np.linalg.svd(X, full_matrices=False)
-        D = U[:, :k].dot(np.diag(s[:k]))
+        D, s, _ = np.linalg.svd(X, full_matrices=False)
+        D = D[:, :k]
+        s = s[:k]
 
         C = np.zeros((self.emb_dim, len(self.sentences)))
         for j, sent in enumerate(self.sentences):
             embedded_sent = inds_to_embeddings(sent, self.embedding_matrix)
-            order = s[:k] * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
+            order = s * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
             toph = order.argsort()[::-1][:h]
             alpha = np.zeros(embedded_sent.shape[1])
             for i in range(embedded_sent.shape[1]):
