@@ -3,9 +3,8 @@ Things that help to work with embeddings
 """
 
 from typing import List, Tuple
-
 import numpy as np
-from nltk import wordpunct_tokenize
+from utils import preprocess_sentence
 
 
 class GloveEmbedder:
@@ -21,22 +20,6 @@ class GloveEmbedder:
 
     def __call__(self, tokens):
         return self.get_vecs_average(tokens)
-
-
-class MeanEmbedder:
-
-    def __init__(self, sentences: List[List[int]], embedding_matrix: np.ndarray) -> None:
-        self.sentences = sentences  # List of idx representations of sentences
-        self.embedding_matrix = embedding_matrix
-        self.emb_dim = self.embedding_matrix.shape[1]
-
-    def get_sentence_embeddings(self):
-        C = np.zeros((self.emb_dim, len(self.sentences)))
-
-        for i, sent in enumerate(self.sentences):
-            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix)
-            C[:, i] = np.mean(embedded_sent, axis=1)
-        return C, None
 
 
 def get_embedding_matrix(path: str, islexvec: bool = False) -> Tuple[np.ndarray, dict]:
@@ -55,21 +38,22 @@ def get_embedding_matrix(path: str, islexvec: bool = False) -> Tuple[np.ndarray,
         for line in file:
             values = line.split()
             word = values[0]
-            coefs = np.array(values[1:], dtype=np.float32)
+            coefs = np.array(values[1:], dtype=np.float64)
             embeddings[word] = coefs
             vocabulary.append(word)
 
-    embedding_matrix = np.array(list(embeddings.values()))
-    vocabulary = {word: i for i, word in enumerate(vocabulary)}
+    embedding_size = list(embeddings.values())[1].shape[0]
 
-    return embedding_matrix, vocabulary
+    embedding_matrix = np.zeros((len(vocabulary) + 1, embedding_size))
+    embedding_matrix[-1] = np.mean(np.array(list(embeddings.values())), axis=0)
 
+    vocab = dict()
+    vocab['UNKNOWN_TOKEN'] = len(vocabulary)
+    for i, word in enumerate(vocabulary):
+        embedding_matrix[i] = embeddings[word]
+        vocab[word] = i
 
-def preprocess_sentence(sentence: str):
-    """
-    :return: list of words
-    """
-    return list(filter(str.isalpha, wordpunct_tokenize(sentence.lower())))
+    return embedding_matrix, vocab
 
 
 def tokens_to_indexes(words: List[str], vocab: dict) -> List[int]:
@@ -80,15 +64,34 @@ def tokens_to_indexes(words: List[str], vocab: dict) -> List[int]:
     return indexes
 
 
-def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
-    words = preprocess_sentence(sentence)
+def sentence_to_indexes(sentence: str, vocab: dict, bigrams: bool = False) -> List[int]:
+    tokens = preprocess_sentence(sentence, bigrams)
     indexes = []
-    for word in words:
-        if word in vocab:
-            indexes.append(vocab[word])
+    for token in tokens:
+        if bigrams:
+            word1 = token[0]
+            word2 = token[1]
+        else:
+            word1 = token
+
+        if word1 in vocab:
+            indexes.append(vocab[word1])
+        else:
+            indexes.append(vocab['UNKNOWN_TOKEN'])
+
+        if bigrams:
+            if word2 in vocab:
+                indexes.append(vocab[word2])
+            else:
+                indexes.append(vocab['UNKNOWN_TOKEN'])
+
     return indexes
 
 
-def inds_to_embeddings(indexes: List[int], emb_matrix: np.ndarray) -> np.ndarray:
+def inds_to_embeddings(indexes: List[int], emb_matrix: np.ndarray, bigrams: bool = False) -> np.ndarray:
+    if bigrams:
+        embedded_sent = emb_matrix[indexes]
+        embedded_sent = (embedded_sent[::2] + embedded_sent[1::2]) / 2
+        return embedded_sent.T
     # shape: [d, n] (embedding dim, number of words)
     return emb_matrix[indexes].T

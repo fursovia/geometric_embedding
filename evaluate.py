@@ -4,7 +4,7 @@
 # sentences given a sentence pair. The evaluation is by the Pearson’s coefficient r between humanlabeled
 # similarity (0 - 5 points) and predictions."
 
-from embeddings import preprocess_sentence
+from utils import preprocess_sentence
 from typing import Callable, Union
 import os
 import numpy as np
