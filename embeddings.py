@@ -77,18 +77,22 @@ def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
     return indexes
 
 
-def inds_to_embeddings(indexes: List[int], emb_matrix: np.ndarray, bigrams: bool = False) -> np.ndarray:
-    if bigrams:
+def inds_to_embeddings(indexes: List[int], emb_matrix: np.ndarray, ngrams: int = 1) -> np.ndarray:
+    if ngrams > 1:
         embedded_sent = emb_matrix[indexes]
-        if len(indexes) % 2 == 0:
-            embedded_sent = (embedded_sent[::2] + embedded_sent[1::2]) / 2
-        else:
-            first = embedded_sent[::2]
-            second = embedded_sent[1::2]
-            padded = np.zeros(first.shape)
-            padded[:-1] = second
+        sent_len = len(indexes)
+        remainder = sent_len % ngrams
 
-            embedded_sent = (first + padded) / 2
+        splitted = np.split(embedded_sent, np.arange(ngrams, sent_len, ngrams))
+
+        if remainder == 0:
+            embedded_sent = np.mean(splitted, axis=1)
+        else:
+            padded = np.zeros(splitted[0].shape)
+            padded[:remainder] = splitted[-1]
+            splitted[-1] = padded
+            embedded_sent = np.mean(splitted, axis=1)
+
         return embedded_sent.T
     # shape: [d, n] (embedding dim, number of words)
     return emb_matrix[indexes].T

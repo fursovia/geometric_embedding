@@ -33,11 +33,11 @@ def modified_gram_schmidt_qr(A):
 
 class SentenceEmbedder:
 
-    def __init__(self, sentences_raw: List[str], embedding_matrix: np.ndarray, vocab: dict, bigrams: bool = False):
+    def __init__(self, sentences_raw: List[str], embedding_matrix: np.ndarray, vocab: dict, ngrams: int = 1):
         self.vocab = vocab
         self.sentences_raw = sentences_raw
         self.sentences = []
-        self.bigrams = bigrams
+        self.ngrams = ngrams
 
         for sent in self.sentences_raw:
             self.sentences.append(sentence_to_indexes(sent, self.vocab))
@@ -55,7 +55,7 @@ class SentenceEmbedder:
         X = np.zeros((self.emb_dim, len(self.sentences)))
 
         for i, sent in enumerate(self.sentences):
-            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.bigrams)
+            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.ngrams)
             U, s, Vh = np.linalg.svd(embedded_sent, full_matrices=False)
             X[:, i] = U.dot(s ** sigma_power)
 
@@ -66,7 +66,7 @@ class SentenceEmbedder:
 
         C = np.zeros((self.emb_dim, len(self.sentences)))
         for j, sent in enumerate(self.sentences):
-            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.bigrams)
+            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.ngrams)
             order = s * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
             toph = order.argsort()[::-1][:h]
             alpha = np.zeros(embedded_sent.shape[1])
@@ -89,7 +89,7 @@ class SentenceEmbedder:
         C = np.zeros((self.emb_dim, len(self.sentences)))
 
         for i, sent in enumerate(self.sentences):
-            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.bigrams)
+            embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.ngrams)
             C[:, i] = np.mean(embedded_sent, axis=1)
 
         return C.T, None
