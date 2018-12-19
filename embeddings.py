@@ -66,6 +66,8 @@ def tokens_to_indexes(words: List[str], vocab: dict) -> List[int]:
 
 def sentence_to_indexes(sentence: str, vocab: dict) -> List[int]:
     tokens = preprocess_sentence(sentence)
+    if len(tokens) == 0:
+        return [vocab['UNKNOWN_TOKEN']]
     indexes = []
     for token in tokens:
 
