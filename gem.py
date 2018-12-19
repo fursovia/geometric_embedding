@@ -3,20 +3,24 @@ GEM algorithm
 """
 
 from typing import List
+
 import numpy as np
+
 from embeddings import inds_to_embeddings, sentence_to_indexes
 
 
-def gram_schmidt_qr(A):
+def modified_gram_schmidt_qr(A):
     nrows, ncols = A.shape
     Q = np.zeros((nrows, ncols))
     R = np.zeros((ncols, ncols))
     for j in range(ncols):
         u = np.copy(A[:, j])
         for i in range(j):
-            proj = np.dot(A[:, j], Q[:, i]) * Q[:, i]
+            proj = np.dot(u, Q[:, i]) * Q[:, i]
             u -= proj
-        Q[:, j] = u / (np.linalg.norm(u, ord=2, axis=0) + 1e-18)
+        if np.linalg.norm(u, ord=2, axis=0) != 0:
+            u /= np.linalg.norm(u, ord=2, axis=0)
+        Q[:, j] = u
 
     for j in range(ncols):
         for i in range(j + 1):
@@ -66,7 +70,7 @@ class SentenceEmbedder:
             alpha = np.zeros(embedded_sent.shape[1])
             for i in range(embedded_sent.shape[1]):
                 window_matrix = self._context_window(i, window_size, embedded_sent)
-                Q, R = gram_schmidt_qr(window_matrix)
+                Q, R = modified_gram_schmidt_qr(window_matrix)
                 q = Q[:, -1]
                 r = R[:, -1]
                 alpha_n = np.exp(r[-1] / (np.linalg.norm(r, ord=2, axis=0)) + 1e-18)
