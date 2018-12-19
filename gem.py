@@ -18,8 +18,10 @@ def modified_gram_schmidt_qr(A):
         for i in range(j):
             proj = np.dot(u, Q[:, i]) * Q[:, i]
             u -= proj
-        if np.linalg.norm(u, ord=2, axis=0) != 0:
-            u /= np.linalg.norm(u, ord=2, axis=0)
+
+        u_norm = np.linalg.norm(u, ord=2, axis=0)
+        if u_norm != 0:
+            u /= u_norm
         Q[:, j] = u
 
     for j in range(ncols):
