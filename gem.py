@@ -3,10 +3,9 @@ GEM algorithm
 """
 
 from typing import List
-
 import numpy as np
-
 from embeddings import inds_to_embeddings, sentence_to_indexes
+from tqdm import tqdm
 
 
 def modified_gram_schmidt_qr(A):
@@ -54,7 +53,7 @@ class SentenceEmbedder:
         """
         X = np.zeros((self.emb_dim, len(self.sentences)))
 
-        for i, sent in enumerate(self.sentences):
+        for i, sent in enumerate(tqdm(self.sentences)):
             embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.ngrams)
             U, s, Vh = np.linalg.svd(embedded_sent, full_matrices=False)
             X[:, i] = U.dot(s ** sigma_power)
@@ -65,7 +64,7 @@ class SentenceEmbedder:
         s = s[:k]
 
         C = np.zeros((self.emb_dim, len(self.sentences)))
-        for j, sent in enumerate(self.sentences):
+        for j, sent in enumerate(tqdm(self.sentences)):
             embedded_sent = inds_to_embeddings(sent, self.embedding_matrix, self.ngrams)
             order = s * np.linalg.norm(embedded_sent.T.dot(D), axis=0)
             toph = order.argsort()[::-1][:h]
