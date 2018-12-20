@@ -1,6 +1,5 @@
 .DS_Store
 /.idea/
-usif/usif/vectors/
 /.ipynb_checkpoints/
 /data/glove/
 /data/lexvec/

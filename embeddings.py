@@ -7,21 +7,6 @@ import numpy as np
 from utils import preprocess_sentence
 
 
-class GloveEmbedder:
-    def __init__(self, path_to_glove: str):
-        self.matrix, self.vocab = get_embedding_matrix(path_to_glove)
-
-    def get_vecs(self, tokens: List[str]) -> np.array:
-        indices = tokens_to_indexes(tokens, self.vocab)
-        return inds_to_embeddings(indices, self.matrix)
-
-    def get_vecs_average(self, tokens: List[str]) -> np.array:
-        return np.mean(self.get_vecs(tokens), axis=1)
-
-    def __call__(self, tokens):
-        return self.get_vecs_average(tokens)
-
-
 def get_embedding_matrix(path: str, islexvec: bool = False) -> Tuple[np.ndarray, dict]:
     """
     Function returns:
