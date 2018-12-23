@@ -1,9 +1,5 @@
 .DS_Store
 /.idea/
 /.ipynb_checkpoints/
-/data/glove/
-/data/lexvec/
-/data/imdb/
 __pycache__
-data/fasttext/
-data/quora/
+data/
