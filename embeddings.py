@@ -7,7 +7,7 @@ import numpy as np
 from utils import preprocess_sentence
 
 
-def get_embedding_matrix(path: str, islexvec: bool = False) -> Tuple[np.ndarray, dict]:
+def get_embedding_matrix(path: str, skip_line: bool = False) -> Tuple[np.ndarray, dict]:
     """
     Function returns:
     1) Embedding matrix
@@ -18,7 +18,7 @@ def get_embedding_matrix(path: str, islexvec: bool = False) -> Tuple[np.ndarray,
     vocabulary = []
 
     with open(path, 'r') as file:
-        if islexvec:
+        if skip_line:
             file.readline()
         for line in file:
             values = line.split()
