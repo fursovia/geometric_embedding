@@ -1,10 +1,10 @@
-from nltk import wordpunct_tokenize, ngrams
+from nltk import wordpunct_tokenize
 import pandas as pd
 
 
-def preprocess_sentence(sentence: str, bigrams: bool = False):
+def preprocess_sentence(sentence: str):
     """
-    :return: list of words/bigrams
+    :return: list of words
     """
     tokens = list(filter(str.isalpha, wordpunct_tokenize(sentence.lower())))
     return tokens
