@@ -1,12 +1,34 @@
-[Zero-training Sentence Embedding via Orthogonal Basis](https://openreview.net/pdf?id=rJedbn0ctQ) paper implementation
+## Geometric Embedding Algorithm (GEM)
 
-* [Project proposal](https://docs.google.com/document/d/1aok_e_UXDNRH9HvOZ6grawrZI4OjVrHfEJFuca_t4ng/edit?usp=sharing)
-* [Presentation](https://github.com/fursovia/nla_project/blob/master/ZERO_TRAINING_SENTENCE_EMBEDDING_VIA_ORTHOGONAL_BASIS.pdf)
+This is an implementation of Geometric Embedding Algorithm, a simple and robust non-parameterized approach for building sentence
+representations. See the [paper](https://openreview.net/pdf?id=rJedbn0ctQ) for more details.
 
+The work is done as a project for [NLA course](http://nla.skoltech.ru/) at Skoltech.
 
-Data used:
+### Example
+
+```python
+from gem import SentenceEmbedder
+from embeddings import get_embedding_matrix
+
+sentences = ["We come from the land of the ice and snow",
+            "From the midnight sun where the hot springs blow"]
+            
+embedding_matrix, vocab = get_embedding_matrix('glove.6B.300d.txt')
+embedder = SentenceEmbedder(sentences, embedding_matrix, vocab)
+
+embedded_sentences = embedder.gem(window_size=3, sigma_power=3)
+```
+
+### Data used
 
 * [GloVe embeddings](https://nlp.stanford.edu/projects/glove/)
 * [LexVec embeddings](https://github.com/alexandres/lexvec)
-* [STS data](http://ixa2.si.ehu.es/stswiki/index.php/STSbenchmark)
-* [IMDB/Reuters](https://keras.io/datasets/)
+
+
+### Team
+
+* [Alexey Bokhovkin](https://github.com/alexeybokhovkin)
+* [Eugenia Cheskidova](https://github.com/fogside)
+* [Ivan Fursov](https://github.com/fursovia)
+* [Ruslan Rakhimov](https://github.com/rakhimovv)
